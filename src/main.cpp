@@ -3,11 +3,177 @@
 #include <SPI.h>
 #include <Keyboard.h>  // Arduino Leonardo acts as a keyboard
 
+
 #define LED_PIN 12  // LED connected to pin 12
+#define LINUX_MODE true  // Enable Linux-specific optimizations
+#define MACRO_DELAY 10  // Non-blocking macro delay in milliseconds
+
+// Macro types for state management
+enum MacroType {
+    NO_MACRO = 0,
+    ALT_F4_MACRO = 1,
+    CTRL_ALT_F_MACRO = 2,
+    CTRL_C_MACRO = 3,
+    CTRL_V_MACRO = 4,
+    CTRL_ALT_DOWN_MACRO = 5,
+    PAGE_DOWN_F13_MACRO = 6,
+    CTRL_A_MACRO = 7,
+    CTRL_E_MACRO = 8,
+    END_F13_MACRO = 9,
+    // VSCode specific macros
+    VSCODE_FORMAT_MACRO = 10,     // Shift+Alt+F
+    VSCODE_TOGGLE_PANEL_MACRO = 11, // Ctrl+J
+    VSCODE_COMMAND_PALETTE_MACRO = 12, // Ctrl+Shift+P
+    VSCODE_QUICK_OPEN_MACRO = 13,   // Ctrl+P
+    VSCODE_NEW_TERMINAL_MACRO = 14,  // Ctrl+Shift+`
+    VSCODE_COMMENT_LINE_MACRO = 15,  // Ctrl+/
+    VSCODE_SAVE_ALL_MACRO = 16,      // Ctrl+K S
+    VSCODE_ZOOM_IN_MACRO = 17,       // Ctrl+=
+    VSCODE_ZOOM_OUT_MACRO = 18       // Ctrl+-
+};
+
+// Macro state management structure
+struct MacroState {
+    bool inProgress = false;
+    unsigned long startTime = 0;
+    MacroType macroType = NO_MACRO;
+    bool keysPressed = false;
+    bool secondStage = false; // For two-stage macros like Ctrl+K then S
+};
 
 USB Usb;
 HIDUniversal Hid(&Usb);
 bool numLockActive = false; // Track Num Lock state
+MacroState currentMacro; // Current macro execution state
+
+// Helper function implementations (must be defined before use)
+// Removed getMacroName to save RAM - use numbers instead
+
+// Removed getKeyDisplayName to save RAM - use hex codes instead
+
+// Macro management functions
+void startMacro(MacroType type) {
+    currentMacro.inProgress = true;
+    currentMacro.startTime = millis();
+    currentMacro.macroType = type;
+    currentMacro.keysPressed = false;
+    
+    Serial.print("Macro ");
+    Serial.print(type);
+    
+    // Press the appropriate keys immediately
+    switch (type) {
+        case ALT_F4_MACRO:
+            Keyboard.press(KEY_LEFT_ALT);
+            Keyboard.press(KEY_F4);
+            break;
+        case CTRL_ALT_F_MACRO:
+            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press(KEY_LEFT_ALT);
+            Keyboard.press('f');
+            break;
+        case CTRL_C_MACRO:
+            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press('c');
+            break;
+        case CTRL_V_MACRO:
+            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press('v');
+            break;
+        case CTRL_ALT_DOWN_MACRO:
+            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press(KEY_LEFT_ALT);
+            Keyboard.press(KEY_DOWN_ARROW);
+            break;
+        case PAGE_DOWN_F13_MACRO:
+            Keyboard.press(KEY_PAGE_DOWN);
+            Keyboard.press(KEY_F13);
+            break;
+        case CTRL_A_MACRO:
+            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press('a');
+            break;
+        case CTRL_E_MACRO:
+            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press('e');
+            break;
+        case END_F13_MACRO:
+            Keyboard.press(KEY_END);
+            Keyboard.press(KEY_F13);
+            break;
+        case VSCODE_FORMAT_MACRO:
+            Keyboard.press(KEY_LEFT_SHIFT);
+            Keyboard.press(KEY_LEFT_ALT);
+            Keyboard.press('f');
+            break;
+        case VSCODE_TOGGLE_PANEL_MACRO:
+            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press('j');
+            break;
+        case VSCODE_COMMAND_PALETTE_MACRO:
+            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press(KEY_LEFT_SHIFT);
+            Keyboard.press('p');
+            break;
+        case VSCODE_QUICK_OPEN_MACRO:
+            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press('p');
+            break;
+        case VSCODE_NEW_TERMINAL_MACRO:
+            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press(KEY_LEFT_SHIFT);
+            Keyboard.press('`');
+            break;
+        case VSCODE_COMMENT_LINE_MACRO:
+            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press('/');
+            break;
+        case VSCODE_SAVE_ALL_MACRO:
+            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press('k');
+            break;
+        case VSCODE_ZOOM_IN_MACRO:
+            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press('=');
+            break;
+        case VSCODE_ZOOM_OUT_MACRO:
+            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press('-');
+            break;
+        default:
+            currentMacro.inProgress = false;
+            break;
+    }
+    currentMacro.keysPressed = true;
+}
+
+void processMacros() {
+    if (!currentMacro.inProgress) return;
+    
+    unsigned long elapsed = millis() - currentMacro.startTime;
+    
+    // Handle two-stage macros (like Ctrl+K then S for Save All)
+    if (currentMacro.macroType == VSCODE_SAVE_ALL_MACRO && !currentMacro.secondStage) {
+        if (elapsed >= MACRO_DELAY / 2) {
+            Keyboard.release(KEY_LEFT_CTRL);
+            Keyboard.release('k');
+            delayMicroseconds(5000); // Small delay between stages
+            Keyboard.press('s');
+            currentMacro.secondStage = true;
+            currentMacro.startTime = millis(); // Reset timer for second stage
+        }
+        return;
+    }
+    
+    // Check if it's time to release the keys
+    if (elapsed >= MACRO_DELAY) {
+        Keyboard.releaseAll();
+        currentMacro.inProgress = false;
+        currentMacro.macroType = NO_MACRO;
+        currentMacro.keysPressed = false;
+        currentMacro.secondStage = false;
+    }
+}
 
 class KeyboardHandler : public HIDReportParser {
 protected:
@@ -15,21 +181,24 @@ protected:
         if (len > 0) {
             uint8_t modifiers = buf[0]; // Modifier keys (Shift, Ctrl, Alt)
             bool shiftPressed = (modifiers & 0x22); // Left Shift (0x02) or Right Shift (0x20)
+            bool ctrlPressed = (modifiers & 0x11); // Left Ctrl (0x01) or Right Ctrl (0x10)
+            bool altPressed = (modifiers & 0x44); // Left Alt (0x04) or Right Alt (0x40)
 
-            for (uint8_t i = 2; i < len; i++) { // Start from index 2 (actual keypresses)
+            for (uint8_t i = 2; i < len; i++) {
                 if (buf[i] > 0) {
-                    uint8_t keycode = buf[i]; // Get keycode
+                    uint8_t keycode = buf[i];
+
                     if (keycode == 0x53) { // Num Lock key
                         numLockActive = !numLockActive; // Toggle Num Lock state
                         digitalWrite(LED_PIN, numLockActive ? HIGH : LOW); // Control LED
-                        Serial.print("Num Lock: ");
-                        Serial.println(numLockActive ? "ON" : "OFF");
+                        continue; // Skip processing as macro
                     }
+                    
                     char c = KeycodeToAscii(keycode, shiftPressed);
                     
                     if (c) {
                         Keyboard.press(c);   // Press key
-                        delay(10);           // Small delay
+                        delayMicroseconds(10000); // 10ms equivalent for single keys
                         Keyboard.release(c); // Release key
                     }
                 }
@@ -37,23 +206,22 @@ protected:
         }
     }
 
+
+
     char KeycodeToAscii(uint8_t keycode, bool shift) {
         switch (keycode) {
             // Letter keys (A-Z)
             case 0x04: return shift ? 'A' : 'a';
-            case 0x05:   // 'b' key
-            Keyboard.press(KEY_LEFT_CTRL);   // Hold Ctrl
-            Keyboard.press(KEY_LEFT_ALT);    // Hold Alt
-            Keyboard.press('f');             // Press F
-            delay(10);                       // Short delay
-            Keyboard.releaseAll();          // Release Ctrl + Alt + F
+            case 0x05:   // 'b' key - Linux Alt+F4 (close window)
+            #if LINUX_MODE
+            startMacro(ALT_F4_MACRO);
+            #else
+            startMacro(CTRL_ALT_F_MACRO);
+            #endif
             return 0;                        // Do not send 'b' or 'B'
 
-            case 0x06:  // 'C'
-            Keyboard.press(KEY_LEFT_CTRL);  // Hold Ctrl
-            Keyboard.press('c');            // Press C
-            delay(10);                       // Short delay
-            Keyboard.releaseAll();           // Release Ctrl + C
+            case 0x06:  // 'C' - Copy
+            startMacro(CTRL_C_MACRO);
             return 0; // Don't send 'C' again
 
             case 0x07: return shift ? 'D' : 'd';
@@ -74,11 +242,8 @@ protected:
             case 0x16: return shift ? 'S' : 's';
             case 0x17: return shift ? 'T' : 't';
             case 0x18: return shift ? 'U' : 'u';
-            case 0x19:  // 'V'
-            Keyboard.press(KEY_LEFT_CTRL);  // Hold Ctrl
-            Keyboard.press('v');            // Press V
-            delay(10);                       // Short delay
-            Keyboard.releaseAll();           // Release Ctrl + V
+            case 0x19:  // 'V' - Paste (works on Linux too)
+            startMacro(CTRL_V_MACRO);
             return 0;
             case 0x1A: return shift ? 'W' : 'w';
             case 0x1B: return shift ? 'X' : 'x';
@@ -136,34 +301,54 @@ protected:
             case 0x57: return numLockActive ? '+' : 0;
             case 0x58: return numLockActive ? '\n' : 0;
             case 0x63: return numLockActive ? '.' : 0;
-            // Function keys (F1-F12)
+            // Function keys (F1-F12) - VSCode macros mapped to F7-F12
             case 0x3A: return KEY_F1;
             case 0x3B: return KEY_F2;
             case 0x3C: return KEY_F3;
             case 0x3D: return KEY_F4;
             case 0x3E: return KEY_F5;
             case 0x3F: return KEY_F6;
-            case 0x40: return KEY_F7;
-            case 0x41: return KEY_F8;
-            case 0x42: return KEY_F9;
-            case 0x43: return KEY_F10;
-            case 0x44: return KEY_F11;
-            case 0x45: return KEY_F12;
+            case 0x40:   // F7 - VSCode Format Document (Shift+Alt+F)
+            startMacro(VSCODE_FORMAT_MACRO);
+            return 0;
+            case 0x41:   // F8 - VSCode Toggle Panel (Ctrl+J)
+            startMacro(VSCODE_TOGGLE_PANEL_MACRO);
+            return 0;
+            case 0x42:   // F9 - VSCode Command Palette (Ctrl+Shift+P)
+            startMacro(VSCODE_COMMAND_PALETTE_MACRO);
+            return 0;
+            case 0x43:   // F10 - VSCode Quick Open (Ctrl+P)
+            startMacro(VSCODE_QUICK_OPEN_MACRO);
+            return 0;
+            case 0x44:   // F11 - VSCode Comment Line (Ctrl+/)
+            startMacro(VSCODE_COMMENT_LINE_MACRO);
+            return 0;
+            case 0x45:   // F12 - VSCode Save All (Ctrl+K S)
+            startMacro(VSCODE_SAVE_ALL_MACRO);
+            return 0;
 
             // Page up, Page down, Home, End, Insert, Delete
             case 0x4B: return KEY_PAGE_UP;// Page up
-            case 0x4E: 
-            Keyboard.press(KEY_PAGE_DOWN);// Page down
-            Keyboard.press(KEY_F13);
-            delay(10);
-            Keyboard.releaseAll();
+            case 0x4E: // Page Down - Linux workspace switch
+            #if LINUX_MODE
+            startMacro(CTRL_ALT_DOWN_MACRO);
+            #else
+            startMacro(PAGE_DOWN_F13_MACRO);
+            #endif
             return 0;
-            case 0x4A: return KEY_HOME;// Home
-            case 0x4D:
-            Keyboard.press(KEY_END);
-            Keyboard.press(KEY_F13);
-            delay(10);
-            Keyboard.releaseAll();
+            case 0x4A: // Home - Linux terminal start of line
+            #if LINUX_MODE
+            startMacro(CTRL_A_MACRO);
+            return 0;
+            #else
+            return KEY_HOME;// Home
+            #endif
+            case 0x4D: // End - Linux terminal end of line
+            #if LINUX_MODE
+            startMacro(CTRL_E_MACRO);
+            #else
+            startMacro(END_F13_MACRO);
+            #endif
             return 0;
             // End
             case 0x49: return KEY_INSERT;// Insert
@@ -181,14 +366,24 @@ void setup() {
     Keyboard.begin();
     pinMode(LED_PIN, OUTPUT); // Set LED pin as output
 
+    Serial.println("Arduino Macro Keyboard Converter Ready");
+    
     if (Usb.Init() == -1) {
-        Serial.println("USB Host Shield initialization failed.");
-        while (1);
+        Serial.println("USB Host Shield init failed!");
+        while (1) {
+            digitalWrite(LED_PIN, HIGH);
+            delay(100);
+            digitalWrite(LED_PIN, LOW);
+            delay(100);
+        }
     }
+    
     Hid.SetReportParser(0, &MyKeyboard);
-    Serial.println("Ready to read keyboard input.");
 }
 
 void loop() {
     Usb.Task(); // Keep checking for updates
-}
+    processMacros(); // Process any ongoing macro executions
+    
+
+    }

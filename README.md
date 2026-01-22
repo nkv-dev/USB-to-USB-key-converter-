@@ -2,7 +2,34 @@
 
 ## 📌 Overview  
 This project uses an **Arduino Leonardo** (or compatible board) with a **USB Host Shield** to convert a standard **USB keyboard** into a **macro keyboard**.  
-The Arduino reads key presses from the external keyboard and sends specific **commands, shortcuts, or macros** to the computer.  
+The Arduino reads key presses from the external keyboard and sends specific **commands, shortcuts, or macros** to the computer.
+
+## 🐧 Linux Optimization Branch  
+This branch includes **Linux-specific optimizations** with enhanced macro mappings for Linux desktop environments and terminal applications.
+
+## ⚡ Performance Optimizations  
+✅ **Non-blocking Timing** – Replaced all `delay()` calls with `millis()`-based state machine  
+✅ **Improved Responsiveness** – USB processing continues during macro execution  
+✅ **Efficient State Management** – Centralized macro execution with minimal memory overhead  
+✅ **Better Performance** – No CPU wasted in blocking delay loops  
+
+## 💻 VSCode Integration  
+Enhanced with **developer-focused macros** for VSCode productivity:
+
+| 🔢 Function Key | 🎯 VSCode Action | 📝 Description |
+|------------------|-------------------|----------------|
+| **F7** | `Shift+Alt+F` | Format Document |
+| **F8** | `Ctrl+J` | Toggle Terminal/Panel |
+| **F9** | `Ctrl+Shift+P` | Command Palette |
+| **F10** | `Ctrl+P` | Quick Open File |
+| **F11** | `Ctrl+/` | Toggle Line Comment |
+| **F12** | `Ctrl+K S` | Save All Files |
+
+## 🎯 Enhanced Macro System  
+✅ **Two-stage Macros** – Support for complex sequences (like Ctrl+K then S)  
+✅ **Developer Tools** – Essential VSCode shortcuts at your fingertips  
+✅ **Non-blocking Execution** – All VSCode macros use millis() timing  
+✅ **Memory Efficient** – Only 1 byte additional RAM for VSCode features |  
 
 ## 🔥 Features  
 ✅ **USB Keyboard Input** – Connects an external keyboard via the USB Host Shield.  
@@ -10,6 +37,7 @@ The Arduino reads key presses from the external keyboard and sends specific **co
 ✅ **Num Lock Indicator** – Uses an LED to show the Num Lock state.  
 ✅ **Custom Key Mappings** – Supports function keys and macros (e.g., `Ctrl + C`, `Ctrl + V`).  
 ✅ **Multi-key Support** – Handles modifiers like **Shift, Ctrl, and Alt**.  
+✅ **Linux Optimizations** – Special mappings for Linux desktop and terminal shortcuts.  
 
 ## 🛠️ Hardware Used  
 
@@ -71,24 +99,151 @@ The macros in this project are **hardcoded into the Arduino**, meaning **any key
 
 ---
 
-## ⌨️ Example Key Mappings  
+## ⌨️ Complete Key Mappings 
 
-| 🔢 Key        | 🎯 Action                          |
-|--------------|--------------------------------|
-| 🅲 `C`       | `Ctrl + C` (Copy)              |
-| 🆅 `V`       | `Ctrl + V` (Paste)             |
-| 🔢 `Num Lock` | Toggles LED and Num Lock state |
-| ⏬ `Page Down` | Sends `F13 + Page Down`        |
-| ⏭️ `End`      | Sends `F13 + End`              |
-| ❌ `Esc`      | Sends Escape                   |
-| `~`         | Sends `~` character            |
+### 🔤 Alphabet Keys & Special Macros
+| 🔢 Key | Normal | Shift | 🎯 Special Action (Linux Mode) |
+|---------|---------|--------|--------------------------------|
+| **A** | `a` | `A` | Normal typing |
+| **B** | ❌ | ❌ | `Alt + F4` (Close window) |
+| **C** | ❌ | ❌ | `Ctrl + C` (Copy) |
+| **D** | `d` | `D` | Normal typing |
+| **E** | `e` | `E` | Normal typing |
+| **F** | `f` | `F` | Normal typing |
+| **G** | `g` | `G` | Normal typing |
+| **H** | `h` | `H` | Normal typing |
+| **I** | `i` | `I` | Normal typing |
+| **J** | `j` | `J` | Normal typing |
+| **K** | `k` | `K` | Normal typing |
+| **L** | `l` | `L` | Normal typing |
+| **M** | `m` | `M` | Normal typing |
+| **N** | `n` | `N` | Normal typing |
+| **O** | `o` | `O` | Normal typing |
+| **P** | `p` | `P` | Normal typing |
+| **Q** | `q` | `Q` | Normal typing |
+| **R** | `r` | `R` | Normal typing |
+| **S** | `s` | `S` | Normal typing |
+| **T** | `t` | `T` | Normal typing |
+| **U** | `u` | `U` | Normal typing |
+| **V** | ❌ | ❌ | `Ctrl + V` (Paste) |
+| **W** | `w` | `W` | Normal typing |
+| **X** | `x` | `X` | Normal typing |
+| **Y** | `y` | `Y` | Normal typing |
+| **Z** | `z` | `Z` | Normal typing |
+
+### 🔢 Number Keys
+| 🔢 Key | Normal | Shift | 🎯 Action |
+|---------|---------|--------|-----------|
+| **1** | `1` | `!` | Normal typing |
+| **2** | `2` | `@` | Normal typing |
+| **3** | `3` | `#` | Normal typing |
+| **4** | `4` | `$` | Normal typing |
+| **5** | `5` | `%` | Normal typing |
+| **6** | `6` | `^` | Normal typing |
+| **7** | `7` | `&` | Normal typing |
+| **8** | `8` | `*` | Normal typing |
+| **9** | `9` | `(` | Normal typing |
+| **0** | `0` | `)` | Normal typing |
+
+### 🔤 Symbol Keys
+| 🔢 Key | Normal | Shift | Action |
+|---------|---------|--------|--------|
+| **-** | `-` | `_` | Normal typing |
+| **=** | `=` | `+` | Normal typing |
+| **[** | `[` | `{` | Normal typing |
+| **]** | `]` | `}` | Normal typing |
+| **\** | `\` | `|` | Normal typing |
+| **;** | `;` | `:` | Normal typing |
+| **'** | `'` | `"` | Normal typing |
+| **`** | `` ` `` | `~` | Normal typing |
+| **,** | `,` | `<` | Normal typing |
+| **.** | `.` | `>` | Normal typing |
+| **/** | `/` | `?` | Normal typing |
+
+### ⌨️ Special Function Keys
+| 🔢 Key | 🎯 Action | 📝 Description |
+|---------|-----------|----------------|
+| **Space** | `F24` | **Special output key** (remains F24) |
+| **Enter** | `Enter` | New line |
+| **Backspace** | `Backspace` | Delete previous character |
+| **Tab** | `Tab` | Tab character |
+| **Esc** | `Esc` | Escape key |
+| **Num Lock** | LED Toggle | Toggles Num Lock LED & state |
+
+### 🎛️ Function Keys (F1-F12)
+| 🔢 Function Key | 🎯 VSCode Action | 📝 Description |
+|----------------|-------------------|----------------|
+| **F1** | `F1` | Standard F1 |
+| **F2** | `F2` | Standard F2 |
+| **F3** | `F3` | Standard F3 |
+| **F4** | `F4` | Standard F4 |
+| **F5** | `F5` | Standard F5 |
+| **F6** | `F6` | Standard F6 |
+| **F7** | `Shift+Alt+F` | **Format Document** |
+| **F8** | `Ctrl+J` | **Toggle Terminal/Panel** |
+| **F9** | `Ctrl+Shift+P` | **Command Palette** |
+| **F10** | `Ctrl+P` | **Quick Open File** |
+| **F11** | `Ctrl+/` | **Toggle Line Comment** |
+| **F12** | `Ctrl+K S` | **Save All Files** |
+
+### 🕹️ Navigation Keys (Linux Optimized)
+| 🔢 Key | Standard Mode | Linux Mode | 📝 Description |
+|---------|---------------|-------------|----------------|
+| **Page Up** | `Page Up` | `Page Up` | Standard navigation |
+| **Page Down** | `Page Down + F13` | `Ctrl+Alt+Down` | **Workspace switch** |
+| **Home** | `Home` | `Ctrl+A` | **Terminal start of line** |
+| **End** | `End + F13` | `Ctrl+E` | **Terminal end of line** |
+| **Insert** | `Insert` | `Insert` | Standard insert |
+| **Delete** | `Delete` | `Delete` | Standard delete |
+
+### 🔢 Numpad (Num Lock Dependent)
+| 🔢 Numpad Key | Num Lock ON | Num Lock OFF | Action |
+|----------------|-------------|--------------|---------|
+| **0-9** | `0-9` | ❌ | Numbers when Num Lock ON |
+| **/** | `/` | ❌ | Division when Num Lock ON |
+| ***** | `*` | ❌ | Multiplication when Num Lock ON |
+| **-** | `-` | ❌ | Subtraction when Num Lock ON |
+| **+** | `+` | ❌ | Addition when Num Lock ON |
+| **Enter** | `Enter` | `Enter` | Always works |
+| **.** | `.` | ❌ | Decimal point when Num Lock ON |
+
+---
+
+## 🎯 Macro Summary
+
+### 🚀 Performance Features
+✅ **Non-blocking Timing** – All macros use `millis()` for responsive operation  
+✅ **Linux Optimized** – Enhanced desktop and terminal shortcuts  
+✅ **Developer Focused** – Essential VSCode shortcuts at hardware level  
+✅ **Memory Efficient** – Minimal RAM overhead with maximum functionality  
+
+### 💡 Special Notes
+🔸 **Space Bar** – Mapped to `F24` for special output functions  
+🔸 **Num Lock** – Controls both LED and numpad number/arrow functionality  
+🔸 **Two-stage Macros** – F12 uses Ctrl+K then S sequence  
+🔸 **Mode Dependent** – Some keys behave differently in Linux vs Standard mode  
 
 ---
 
 ## 🔧 Troubleshooting  
-⚠️ If the **USB Host Shield** does not initialize, check the **Serial Monitor** for errors.  
-🛠️ You can modify key mappings inside the **`KeycodeToAscii()`** function.  
-⌨️ The project uses **`Keyboard.h`** to send key presses to the PC.  
+
+### ⚠️ Common Issues
+- **USB Host Shield** doesn't initialize → Check **Serial Monitor** for errors
+- **LED not working** → Verify pin 12 connection and polarity  
+- **Macros not working** → Ensure **LINUX_MODE** is set to `true`  
+- **Keys stuck** → Restart Arduino and check USB connections  
+
+### 🛠️ Customization
+- **Modify key mappings** inside the **`KeycodeToAscii()`** function  
+- **Add new macros** → Update `MacroType` enum and `startMacro()` function  
+- **Change delay timing** → Adjust `MACRO_DELAY` constant (default: 10ms)  
+- **Disable Linux mode** → Set `LINUX_MODE` to `false` for standard behavior  
+
+### ⌨️ Technical Details
+- **Library**: Uses **`Keyboard.h`** to send key presses to PC
+- **USB Host**: **`USBHost`** library for external keyboard support
+- **Platform**: **Arduino Leonardo** (ATmega32U4) with native USB HID
+- **Compatibility**: Works with Windows, macOS, and Linux systems  
 
 ---
 

@@ -1,0 +1,6 @@
+{
+    "serialmonitor.port": "/dev/ttyACM0",
+    "serialmonitor.baudrate": 115200,
+    "serialmonitor.autoReconnect": true,
+    "serialmonitor.confirmBeforeReconnecting": false
+}
