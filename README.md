@@ -20,8 +20,8 @@ Enhanced with **Ubuntu/GNOME desktop shortcuts** for productivity:
 |-----------------|----------------|----------------|
 | **F1** | Switch to workspace 1 | `Super+Home` |
 | **F2** | Switch to workspace 2 | `Super+End` |
-| **F3** | Previous workspace | `Super+Ctrl+Left` |
-| **F4** | Next workspace | `Super+Ctrl+Right` |
+| **F3** | Previous workspace | `Win+Alt+Left` |
+| **F4** | Next workspace | `Win+Alt+Right` |
 | **F5** | Maximize window | `Super+Up` |
 | **F6** | Show desktop | `Super+D` |
 
@@ -188,8 +188,8 @@ The macros in this project are **hardcoded into the Arduino**, meaning **any key
 |----------------|----------------------|-------------------|----------------|
 | **F1** | `Super+Home` | - | **Switch to workspace 1** |
 | **F2** | `Super+End` | - | **Switch to workspace 2** |
-| **F3** | `Super+Ctrl+Left` | - | **Previous workspace** |
-| **F4** | `Super+Ctrl+Right` | - | **Next workspace** |
+| **F3** | `Win+Alt+Left` | - | **Previous workspace** |
+| **F4** | `Win+Alt+Right` | - | **Next workspace** |
 | **F5** | `Super+Up` | - | **Maximize current window** |
 | **F6** | `Super+D` | - | **Show desktop** |
 | **F7** | - | `Shift+Alt+F` | **Format Document** |
@@ -226,7 +226,7 @@ The macros in this project are **hardcoded into the Arduino**, meaning **any key
 
 ### 🖥️ Ubuntu/GNOME Desktop Features  
 ✅ **Workspace Management** – F1-F2 switch between workspaces  
-✅ **Window Navigation** – F3-F4 move between workspaces  
+✅ **Window Navigation** – F3-F4 move between workspaces using Win+Alt+Arrows  
 ✅ **Window Control** – F5 maximize, F6 show desktop  
 ✅ **Super Key Integration** – Full GNOME shortcut support  
 

@@ -33,8 +33,8 @@ enum MacroType {
     // Ubuntu/GNOME window management macros
     GNOME_WS1_MACRO = 19,            // Super+Home (Workspace 1)
     GNOME_WS2_MACRO = 20,            // Super+End (Workspace 2)
-    GNOME_WS_LEFT_MACRO = 21,         // Super+Ctrl+Left (Previous workspace)
-    GNOME_WS_RIGHT_MACRO = 22,        // Super+Ctrl+Right (Next workspace)
+    GNOME_WS_LEFT_MACRO = 21,         // Win+Alt+Left (Previous workspace)
+    GNOME_WS_RIGHT_MACRO = 22,        // Win+Alt+Right (Next workspace)
     GNOME_MAXIMIZE_MACRO = 23,         // Super+Up (Maximize window)
     GNOME_SHOW_DESKTOP_MACRO = 24      // Super+D (Show desktop)
 };
@@ -158,13 +158,13 @@ void startMacro(MacroType type) {
             Keyboard.press(KEY_END);
             break;
         case GNOME_WS_LEFT_MACRO:
-            Keyboard.press(KEY_LEFT_GUI);     // Super key
-            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press(KEY_LEFT_GUI);     // Windows key
+            Keyboard.press(KEY_LEFT_ALT);
             Keyboard.press(KEY_LEFT_ARROW);
             break;
         case GNOME_WS_RIGHT_MACRO:
-            Keyboard.press(KEY_LEFT_GUI);     // Super key
-            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press(KEY_LEFT_GUI);     // Windows key
+            Keyboard.press(KEY_LEFT_ALT);
             Keyboard.press(KEY_RIGHT_ARROW);
             break;
         case GNOME_MAXIMIZE_MACRO:
@@ -446,6 +446,7 @@ void setup() {
     Serial.println("==============================");
     Serial.println("Ubuntu/GNOME Window Management:");
     Serial.println("F1: WS1  F2: WS2  F3: Prev WS  F4: Next WS");
+    Serial.println("(F3/F4 use Win+Alt+Arrows for workspace movement)");
     Serial.println("F5: Max  F6: Desktop");
     Serial.println("F7-F12: VSCode macros (Format, Panel, Cmd, Open, Comment, Save)");
     Serial.println("==============================");
