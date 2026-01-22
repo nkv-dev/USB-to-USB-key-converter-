@@ -5,10 +5,100 @@
 
 #define LED_PIN 12  // LED connected to pin 12
 #define LINUX_MODE true  // Enable Linux-specific optimizations
+#define MACRO_DELAY 10  // Non-blocking macro delay in milliseconds
+
+// Macro types for state management
+enum MacroType {
+    NO_MACRO = 0,
+    ALT_F4_MACRO = 1,
+    CTRL_ALT_F_MACRO = 2,
+    CTRL_C_MACRO = 3,
+    CTRL_V_MACRO = 4,
+    CTRL_ALT_DOWN_MACRO = 5,
+    PAGE_DOWN_F13_MACRO = 6,
+    CTRL_A_MACRO = 7,
+    CTRL_E_MACRO = 8,
+    END_F13_MACRO = 9
+};
+
+// Macro state management structure
+struct MacroState {
+    bool inProgress = false;
+    unsigned long startTime = 0;
+    MacroType macroType = NO_MACRO;
+    bool keysPressed = false;
+};
 
 USB Usb;
 HIDUniversal Hid(&Usb);
 bool numLockActive = false; // Track Num Lock state
+MacroState currentMacro; // Current macro execution state
+
+// Macro management functions
+void startMacro(MacroType type) {
+    currentMacro.inProgress = true;
+    currentMacro.startTime = millis();
+    currentMacro.macroType = type;
+    currentMacro.keysPressed = false;
+    
+    // Press the appropriate keys immediately
+    switch (type) {
+        case ALT_F4_MACRO:
+            Keyboard.press(KEY_LEFT_ALT);
+            Keyboard.press(KEY_F4);
+            break;
+        case CTRL_ALT_F_MACRO:
+            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press(KEY_LEFT_ALT);
+            Keyboard.press('f');
+            break;
+        case CTRL_C_MACRO:
+            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press('c');
+            break;
+        case CTRL_V_MACRO:
+            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press('v');
+            break;
+        case CTRL_ALT_DOWN_MACRO:
+            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press(KEY_LEFT_ALT);
+            Keyboard.press(KEY_DOWN_ARROW);
+            break;
+        case PAGE_DOWN_F13_MACRO:
+            Keyboard.press(KEY_PAGE_DOWN);
+            Keyboard.press(KEY_F13);
+            break;
+        case CTRL_A_MACRO:
+            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press('a');
+            break;
+        case CTRL_E_MACRO:
+            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press('e');
+            break;
+        case END_F13_MACRO:
+            Keyboard.press(KEY_END);
+            Keyboard.press(KEY_F13);
+            break;
+        default:
+            currentMacro.inProgress = false;
+            break;
+    }
+    currentMacro.keysPressed = true;
+}
+
+void processMacros() {
+    if (!currentMacro.inProgress) return;
+    
+    // Check if it's time to release the keys
+    if (millis() - currentMacro.startTime >= MACRO_DELAY) {
+        Keyboard.releaseAll();
+        currentMacro.inProgress = false;
+        currentMacro.macroType = NO_MACRO;
+        currentMacro.keysPressed = false;
+    }
+}
 
 class KeyboardHandler : public HIDReportParser {
 protected:
@@ -30,7 +120,8 @@ protected:
                     
                     if (c) {
                         Keyboard.press(c);   // Press key
-                        delay(10);           // Small delay
+                        // Simple delay for single key press - using micro delay
+                        delayMicroseconds(10000); // 10ms equivalent for single keys
                         Keyboard.release(c); // Release key
                     }
                 }
@@ -44,24 +135,14 @@ protected:
             case 0x04: return shift ? 'A' : 'a';
             case 0x05:   // 'b' key - Linux Alt+F4 (close window)
             #if LINUX_MODE
-            Keyboard.press(KEY_LEFT_ALT);    // Hold Alt
-            Keyboard.press(KEY_F4);          // Press F4
-            delay(10);                       // Short delay
-            Keyboard.releaseAll();          // Release Alt + F4
+            startMacro(ALT_F4_MACRO);
             #else
-            Keyboard.press(KEY_LEFT_CTRL);   // Hold Ctrl
-            Keyboard.press(KEY_LEFT_ALT);    // Hold Alt
-            Keyboard.press('f');             // Press F
-            delay(10);                       // Short delay
-            Keyboard.releaseAll();          // Release Ctrl + Alt + F
+            startMacro(CTRL_ALT_F_MACRO);
             #endif
             return 0;                        // Do not send 'b' or 'B'
 
-            case 0x06:  // 'C'
-            Keyboard.press(KEY_LEFT_CTRL);  // Hold Ctrl
-            Keyboard.press('c');            // Press C
-            delay(10);                       // Short delay
-            Keyboard.releaseAll();           // Release Ctrl + C
+            case 0x06:  // 'C' - Copy
+            startMacro(CTRL_C_MACRO);
             return 0; // Don't send 'C' again
 
             case 0x07: return shift ? 'D' : 'd';
@@ -83,10 +164,7 @@ protected:
             case 0x17: return shift ? 'T' : 't';
             case 0x18: return shift ? 'U' : 'u';
             case 0x19:  // 'V' - Paste (works on Linux too)
-            Keyboard.press(KEY_LEFT_CTRL);  // Hold Ctrl
-            Keyboard.press('v');            // Press V
-            delay(10);                       // Short delay
-            Keyboard.releaseAll();           // Release Ctrl + V
+            startMacro(CTRL_V_MACRO);
             return 0;
             case 0x1A: return shift ? 'W' : 'w';
             case 0x1B: return shift ? 'X' : 'x';
@@ -162,39 +240,23 @@ protected:
             case 0x4B: return KEY_PAGE_UP;// Page up
             case 0x4E: // Page Down - Linux workspace switch
             #if LINUX_MODE
-            Keyboard.press(KEY_LEFT_CTRL);  // Hold Ctrl
-            Keyboard.press(KEY_LEFT_ALT);   // Hold Alt
-            Keyboard.press(KEY_DOWN_ARROW); // Down arrow
-            delay(10);
-            Keyboard.releaseAll();
+            startMacro(CTRL_ALT_DOWN_MACRO);
             #else
-            Keyboard.press(KEY_PAGE_DOWN);  // Page down
-            Keyboard.press(KEY_F13);
-            delay(10);
-            Keyboard.releaseAll();
+            startMacro(PAGE_DOWN_F13_MACRO);
             #endif
             return 0;
             case 0x4A: // Home - Linux terminal start of line
             #if LINUX_MODE
-            Keyboard.press(KEY_LEFT_CTRL);  // Hold Ctrl
-            Keyboard.press('a');            // Press A
-            delay(10);
-            Keyboard.releaseAll();
+            startMacro(CTRL_A_MACRO);
             return 0;
             #else
             return KEY_HOME;// Home
             #endif
             case 0x4D: // End - Linux terminal end of line
             #if LINUX_MODE
-            Keyboard.press(KEY_LEFT_CTRL);  // Hold Ctrl
-            Keyboard.press('e');            // Press E
-            delay(10);
-            Keyboard.releaseAll();
+            startMacro(CTRL_E_MACRO);
             #else
-            Keyboard.press(KEY_END);
-            Keyboard.press(KEY_F13);
-            delay(10);
-            Keyboard.releaseAll();
+            startMacro(END_F13_MACRO);
             #endif
             return 0;
             // End
@@ -229,4 +291,5 @@ void setup() {
 
 void loop() {
     Usb.Task(); // Keep checking for updates
+    processMacros(); // Process any ongoing macro executions
 }

@@ -5,7 +5,13 @@ This project uses an **Arduino Leonardo** (or compatible board) with a **USB Hos
 The Arduino reads key presses from the external keyboard and sends specific **commands, shortcuts, or macros** to the computer.
 
 ## 🐧 Linux Optimization Branch  
-This branch includes **Linux-specific optimizations** with enhanced macro mappings for Linux desktop environments and terminal applications.  
+This branch includes **Linux-specific optimizations** with enhanced macro mappings for Linux desktop environments and terminal applications.
+
+## ⚡ Performance Optimizations  
+✅ **Non-blocking Timing** – Replaced all `delay()` calls with `millis()`-based state machine  
+✅ **Improved Responsiveness** – USB processing continues during macro execution  
+✅ **Efficient State Management** – Centralized macro execution with minimal memory overhead  
+✅ **Better Performance** – No CPU wasted in blocking delay loops  
 
 ## 🔥 Features  
 ✅ **USB Keyboard Input** – Connects an external keyboard via the USB Host Shield.  
