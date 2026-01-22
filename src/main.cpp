@@ -18,7 +18,17 @@ enum MacroType {
     PAGE_DOWN_F13_MACRO = 6,
     CTRL_A_MACRO = 7,
     CTRL_E_MACRO = 8,
-    END_F13_MACRO = 9
+    END_F13_MACRO = 9,
+    // VSCode specific macros
+    VSCODE_FORMAT_MACRO = 10,     // Shift+Alt+F
+    VSCODE_TOGGLE_PANEL_MACRO = 11, // Ctrl+J
+    VSCODE_COMMAND_PALETTE_MACRO = 12, // Ctrl+Shift+P
+    VSCODE_QUICK_OPEN_MACRO = 13,   // Ctrl+P
+    VSCODE_NEW_TERMINAL_MACRO = 14,  // Ctrl+Shift+`
+    VSCODE_COMMENT_LINE_MACRO = 15,  // Ctrl+/
+    VSCODE_SAVE_ALL_MACRO = 16,      // Ctrl+K S
+    VSCODE_ZOOM_IN_MACRO = 17,       // Ctrl+=
+    VSCODE_ZOOM_OUT_MACRO = 18       // Ctrl+-
 };
 
 // Macro state management structure
@@ -27,6 +37,7 @@ struct MacroState {
     unsigned long startTime = 0;
     MacroType macroType = NO_MACRO;
     bool keysPressed = false;
+    bool secondStage = false; // For two-stage macros like Ctrl+K then S
 };
 
 USB Usb;
@@ -81,6 +92,47 @@ void startMacro(MacroType type) {
             Keyboard.press(KEY_END);
             Keyboard.press(KEY_F13);
             break;
+        // VSCode specific macros
+        case VSCODE_FORMAT_MACRO:
+            Keyboard.press(KEY_LEFT_SHIFT);
+            Keyboard.press(KEY_LEFT_ALT);
+            Keyboard.press('f');
+            break;
+        case VSCODE_TOGGLE_PANEL_MACRO:
+            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press('j');
+            break;
+        case VSCODE_COMMAND_PALETTE_MACRO:
+            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press(KEY_LEFT_SHIFT);
+            Keyboard.press('p');
+            break;
+        case VSCODE_QUICK_OPEN_MACRO:
+            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press('p');
+            break;
+        case VSCODE_NEW_TERMINAL_MACRO:
+            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press(KEY_LEFT_SHIFT);
+            Keyboard.press('`');
+            break;
+        case VSCODE_COMMENT_LINE_MACRO:
+            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press('/');
+            break;
+        case VSCODE_SAVE_ALL_MACRO:
+            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press('k');
+            // We'll handle the 's' key in a sequential manner for Ctrl+K then S
+            break;
+        case VSCODE_ZOOM_IN_MACRO:
+            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press('=');
+            break;
+        case VSCODE_ZOOM_OUT_MACRO:
+            Keyboard.press(KEY_LEFT_CTRL);
+            Keyboard.press('-');
+            break;
         default:
             currentMacro.inProgress = false;
             break;
@@ -91,12 +143,26 @@ void startMacro(MacroType type) {
 void processMacros() {
     if (!currentMacro.inProgress) return;
     
+    // Handle two-stage macros (like Ctrl+K then S for Save All)
+    if (currentMacro.macroType == VSCODE_SAVE_ALL_MACRO && !currentMacro.secondStage) {
+        if (millis() - currentMacro.startTime >= MACRO_DELAY / 2) {
+            Keyboard.release(KEY_LEFT_CTRL);
+            Keyboard.release('k');
+            delayMicroseconds(5000); // Small delay between stages
+            Keyboard.press('s');
+            currentMacro.secondStage = true;
+            currentMacro.startTime = millis(); // Reset timer for second stage
+        }
+        return;
+    }
+    
     // Check if it's time to release the keys
     if (millis() - currentMacro.startTime >= MACRO_DELAY) {
         Keyboard.releaseAll();
         currentMacro.inProgress = false;
         currentMacro.macroType = NO_MACRO;
         currentMacro.keysPressed = false;
+        currentMacro.secondStage = false;
     }
 }
 
@@ -222,19 +288,31 @@ protected:
             case 0x57: return numLockActive ? '+' : 0;
             case 0x58: return numLockActive ? '\n' : 0;
             case 0x63: return numLockActive ? '.' : 0;
-            // Function keys (F1-F12)
+            // Function keys (F1-F12) - VSCode macros mapped to F7-F12
             case 0x3A: return KEY_F1;
             case 0x3B: return KEY_F2;
             case 0x3C: return KEY_F3;
             case 0x3D: return KEY_F4;
             case 0x3E: return KEY_F5;
             case 0x3F: return KEY_F6;
-            case 0x40: return KEY_F7;
-            case 0x41: return KEY_F8;
-            case 0x42: return KEY_F9;
-            case 0x43: return KEY_F10;
-            case 0x44: return KEY_F11;
-            case 0x45: return KEY_F12;
+            case 0x40:   // F7 - VSCode Format Document (Shift+Alt+F)
+            startMacro(VSCODE_FORMAT_MACRO);
+            return 0;
+            case 0x41:   // F8 - VSCode Toggle Panel (Ctrl+J)
+            startMacro(VSCODE_TOGGLE_PANEL_MACRO);
+            return 0;
+            case 0x42:   // F9 - VSCode Command Palette (Ctrl+Shift+P)
+            startMacro(VSCODE_COMMAND_PALETTE_MACRO);
+            return 0;
+            case 0x43:   // F10 - VSCode Quick Open (Ctrl+P)
+            startMacro(VSCODE_QUICK_OPEN_MACRO);
+            return 0;
+            case 0x44:   // F11 - VSCode Comment Line (Ctrl+/)
+            startMacro(VSCODE_COMMENT_LINE_MACRO);
+            return 0;
+            case 0x45:   // F12 - VSCode Save All (Ctrl+K S)
+            startMacro(VSCODE_SAVE_ALL_MACRO);
+            return 0;
 
             // Page up, Page down, Home, End, Insert, Delete
             case 0x4B: return KEY_PAGE_UP;// Page up

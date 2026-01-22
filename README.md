@@ -13,6 +13,24 @@ This branch includes **Linux-specific optimizations** with enhanced macro mappin
 ✅ **Efficient State Management** – Centralized macro execution with minimal memory overhead  
 ✅ **Better Performance** – No CPU wasted in blocking delay loops  
 
+## 💻 VSCode Integration  
+Enhanced with **developer-focused macros** for VSCode productivity:
+
+| 🔢 Function Key | 🎯 VSCode Action | 📝 Description |
+|------------------|-------------------|----------------|
+| **F7** | `Shift+Alt+F` | Format Document |
+| **F8** | `Ctrl+J` | Toggle Terminal/Panel |
+| **F9** | `Ctrl+Shift+P` | Command Palette |
+| **F10** | `Ctrl+P` | Quick Open File |
+| **F11** | `Ctrl+/` | Toggle Line Comment |
+| **F12** | `Ctrl+K S` | Save All Files |
+
+## 🎯 Enhanced Macro System  
+✅ **Two-stage Macros** – Support for complex sequences (like Ctrl+K then S)  
+✅ **Developer Tools** – Essential VSCode shortcuts at your fingertips  
+✅ **Non-blocking Execution** – All VSCode macros use millis() timing  
+✅ **Memory Efficient** – Only 1 byte additional RAM for VSCode features |  
+
 ## 🔥 Features  
 ✅ **USB Keyboard Input** – Connects an external keyboard via the USB Host Shield.  
 ✅ **Macro Execution** – Sends custom key combinations instead of default key presses.  
@@ -94,6 +112,16 @@ The macros in this project are **hardcoded into the Arduino**, meaning **any key
 | ❌ `Esc`      | Sends Escape                   |
 | `~`         | Sends `~` character            |
 | 🅱 `B`       | `Alt + F4` (Close window)      |
+
+### 💻 Developer VSCode Shortcuts
+| 🔢 Function Key | 🎯 VSCode Action | 📝 Description |
+|----------------|-------------------|----------------|
+| **F7** | `Shift+Alt+F` | Format Document |
+| **F8** | `Ctrl+J` | Toggle Terminal/Panel |
+| **F9** | `Ctrl+Shift+P` | Command Palette |
+| **F10** | `Ctrl+P` | Quick Open File |
+| **F11** | `Ctrl+/` | Toggle Line Comment |
+| **F12** | `Ctrl+K S` | Save All Files |
 
 ---
 
