@@ -2,7 +2,10 @@
 
 ## 📌 Overview  
 This project uses an **Arduino Leonardo** (or compatible board) with a **USB Host Shield** to convert a standard **USB keyboard** into a **macro keyboard**.  
-The Arduino reads key presses from the external keyboard and sends specific **commands, shortcuts, or macros** to the computer.  
+The Arduino reads key presses from the external keyboard and sends specific **commands, shortcuts, or macros** to the computer.
+
+## 🐧 Linux Optimization Branch  
+This branch includes **Linux-specific optimizations** with enhanced macro mappings for Linux desktop environments and terminal applications.  
 
 ## 🔥 Features  
 ✅ **USB Keyboard Input** – Connects an external keyboard via the USB Host Shield.  
@@ -10,6 +13,7 @@ The Arduino reads key presses from the external keyboard and sends specific **co
 ✅ **Num Lock Indicator** – Uses an LED to show the Num Lock state.  
 ✅ **Custom Key Mappings** – Supports function keys and macros (e.g., `Ctrl + C`, `Ctrl + V`).  
 ✅ **Multi-key Support** – Handles modifiers like **Shift, Ctrl, and Alt**.  
+✅ **Linux Optimizations** – Special mappings for Linux desktop and terminal shortcuts.  
 
 ## 🛠️ Hardware Used  
 
@@ -73,15 +77,17 @@ The macros in this project are **hardcoded into the Arduino**, meaning **any key
 
 ## ⌨️ Example Key Mappings  
 
-| 🔢 Key        | 🎯 Action                          |
+| 🔢 Key        | 🎯 Action (Linux Mode)                          |
 |--------------|--------------------------------|
 | 🅲 `C`       | `Ctrl + C` (Copy)              |
 | 🆅 `V`       | `Ctrl + V` (Paste)             |
 | 🔢 `Num Lock` | Toggles LED and Num Lock state |
-| ⏬ `Page Down` | Sends `F13 + Page Down`        |
-| ⏭️ `End`      | Sends `F13 + End`              |
+| ⏬ `Page Down` | `Ctrl + Alt + Down` (Workspace switch) |
+| ⏭️ `End`      | `Ctrl + E` (Terminal end of line) |
+| 🏠 `Home`     | `Ctrl + A` (Terminal start of line) |
 | ❌ `Esc`      | Sends Escape                   |
 | `~`         | Sends `~` character            |
+| 🅱 `B`       | `Alt + F4` (Close window)      |
 
 ---
 

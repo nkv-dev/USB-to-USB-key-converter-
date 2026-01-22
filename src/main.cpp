@@ -4,6 +4,7 @@
 #include <Keyboard.h>  // Arduino Leonardo acts as a keyboard
 
 #define LED_PIN 12  // LED connected to pin 12
+#define LINUX_MODE true  // Enable Linux-specific optimizations
 
 USB Usb;
 HIDUniversal Hid(&Usb);
@@ -41,12 +42,19 @@ protected:
         switch (keycode) {
             // Letter keys (A-Z)
             case 0x04: return shift ? 'A' : 'a';
-            case 0x05:   // 'b' key
+            case 0x05:   // 'b' key - Linux Alt+F4 (close window)
+            #if LINUX_MODE
+            Keyboard.press(KEY_LEFT_ALT);    // Hold Alt
+            Keyboard.press(KEY_F4);          // Press F4
+            delay(10);                       // Short delay
+            Keyboard.releaseAll();          // Release Alt + F4
+            #else
             Keyboard.press(KEY_LEFT_CTRL);   // Hold Ctrl
             Keyboard.press(KEY_LEFT_ALT);    // Hold Alt
             Keyboard.press('f');             // Press F
             delay(10);                       // Short delay
             Keyboard.releaseAll();          // Release Ctrl + Alt + F
+            #endif
             return 0;                        // Do not send 'b' or 'B'
 
             case 0x06:  // 'C'
@@ -74,7 +82,7 @@ protected:
             case 0x16: return shift ? 'S' : 's';
             case 0x17: return shift ? 'T' : 't';
             case 0x18: return shift ? 'U' : 'u';
-            case 0x19:  // 'V'
+            case 0x19:  // 'V' - Paste (works on Linux too)
             Keyboard.press(KEY_LEFT_CTRL);  // Hold Ctrl
             Keyboard.press('v');            // Press V
             delay(10);                       // Short delay
@@ -152,18 +160,42 @@ protected:
 
             // Page up, Page down, Home, End, Insert, Delete
             case 0x4B: return KEY_PAGE_UP;// Page up
-            case 0x4E: 
-            Keyboard.press(KEY_PAGE_DOWN);// Page down
+            case 0x4E: // Page Down - Linux workspace switch
+            #if LINUX_MODE
+            Keyboard.press(KEY_LEFT_CTRL);  // Hold Ctrl
+            Keyboard.press(KEY_LEFT_ALT);   // Hold Alt
+            Keyboard.press(KEY_DOWN_ARROW); // Down arrow
+            delay(10);
+            Keyboard.releaseAll();
+            #else
+            Keyboard.press(KEY_PAGE_DOWN);  // Page down
             Keyboard.press(KEY_F13);
             delay(10);
             Keyboard.releaseAll();
+            #endif
             return 0;
-            case 0x4A: return KEY_HOME;// Home
-            case 0x4D:
+            case 0x4A: // Home - Linux terminal start of line
+            #if LINUX_MODE
+            Keyboard.press(KEY_LEFT_CTRL);  // Hold Ctrl
+            Keyboard.press('a');            // Press A
+            delay(10);
+            Keyboard.releaseAll();
+            return 0;
+            #else
+            return KEY_HOME;// Home
+            #endif
+            case 0x4D: // End - Linux terminal end of line
+            #if LINUX_MODE
+            Keyboard.press(KEY_LEFT_CTRL);  // Hold Ctrl
+            Keyboard.press('e');            // Press E
+            delay(10);
+            Keyboard.releaseAll();
+            #else
             Keyboard.press(KEY_END);
             Keyboard.press(KEY_F13);
             delay(10);
             Keyboard.releaseAll();
+            #endif
             return 0;
             // End
             case 0x49: return KEY_INSERT;// Insert
@@ -186,7 +218,13 @@ void setup() {
         while (1);
     }
     Hid.SetReportParser(0, &MyKeyboard);
-    Serial.println("Ready to read keyboard input.");
+    
+    #if LINUX_MODE
+    Serial.println("Linux optimization enabled - Ready to read keyboard input.");
+    Serial.println("Special mappings: Alt+F4 (B), Ctrl+A (Home), Ctrl+E (End), Ctrl+Alt+Down (Page Down)");
+    #else
+    Serial.println("Standard mode - Ready to read keyboard input.");
+    #endif
 }
 
 void loop() {
