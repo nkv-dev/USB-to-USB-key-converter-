@@ -13,8 +13,20 @@ This branch includes **Linux-specific optimizations** with enhanced macro mappin
 ✅ **Efficient State Management** – Centralized macro execution with minimal memory overhead  
 ✅ **Better Performance** – No CPU wasted in blocking delay loops  
 
+## 🖥️ Ubuntu/GNOME Window Management  
+Enhanced with **Ubuntu/GNOME desktop shortcuts** for productivity:
+
+| 🔢 Function Key | 🎯 GNOME Action | 📝 Description |
+|-----------------|----------------|----------------|
+| **F1** | Switch to workspace 1 | `Super+Home` |
+| **F2** | Switch to workspace 2 | `Super+End` |
+| **F3** | Previous workspace | `Super+Ctrl+Left` |
+| **F4** | Next workspace | `Super+Ctrl+Right` |
+| **F5** | Maximize window | `Super+Up` |
+| **F6** | Show desktop | `Super+D` |
+
 ## 💻 VSCode Integration  
-Enhanced with **developer-focused macros** for VSCode productivity:
+Enhanced with **developer-focused macros** for VSCode productivity (F7-F12):
 
 | 🔢 Function Key | 🎯 VSCode Action | 📝 Description |
 |------------------|-------------------|----------------|
@@ -26,10 +38,11 @@ Enhanced with **developer-focused macros** for VSCode productivity:
 | **F12** | `Ctrl+K S` | Save All Files |
 
 ## 🎯 Enhanced Macro System  
+✅ **Ubuntu Window Management** – F1-F6 provide complete GNOME desktop control  
 ✅ **Two-stage Macros** – Support for complex sequences (like Ctrl+K then S)  
-✅ **Developer Tools** – Essential VSCode shortcuts at your fingertips  
-✅ **Non-blocking Execution** – All VSCode macros use millis() timing  
-✅ **Memory Efficient** – Only 1 byte additional RAM for VSCode features |  
+✅ **Developer Tools** – Essential VSCode shortcuts at your fingertips (F7-F12)  
+✅ **Non-blocking Execution** – All macros use millis() timing for responsive operation  
+✅ **Memory Efficient** – Minimal RAM overhead with maximum functionality |  
 
 ## 🔥 Features  
 ✅ **USB Keyboard Input** – Connects an external keyboard via the USB Host Shield.  
@@ -171,20 +184,20 @@ The macros in this project are **hardcoded into the Arduino**, meaning **any key
 | **Num Lock** | LED Toggle | Toggles Num Lock LED & state |
 
 ### 🎛️ Function Keys (F1-F12)
-| 🔢 Function Key | 🎯 VSCode Action | 📝 Description |
-|----------------|-------------------|----------------|
-| **F1** | `F1` | Standard F1 |
-| **F2** | `F2` | Standard F2 |
-| **F3** | `F3` | Standard F3 |
-| **F4** | `F4` | Standard F4 |
-| **F5** | `F5` | Standard F5 |
-| **F6** | `F6` | Standard F6 |
-| **F7** | `Shift+Alt+F` | **Format Document** |
-| **F8** | `Ctrl+J` | **Toggle Terminal/Panel** |
-| **F9** | `Ctrl+Shift+P` | **Command Palette** |
-| **F10** | `Ctrl+P` | **Quick Open File** |
-| **F11** | `Ctrl+/` | **Toggle Line Comment** |
-| **F12** | `Ctrl+K S` | **Save All Files** |
+| 🔢 Function Key | 🎯 Ubuntu/GNOME Action | 🎯 VSCode Action | 📝 Description |
+|----------------|----------------------|-------------------|----------------|
+| **F1** | `Super+Home` | - | **Switch to workspace 1** |
+| **F2** | `Super+End` | - | **Switch to workspace 2** |
+| **F3** | `Super+Ctrl+Left` | - | **Previous workspace** |
+| **F4** | `Super+Ctrl+Right` | - | **Next workspace** |
+| **F5** | `Super+Up` | - | **Maximize current window** |
+| **F6** | `Super+D` | - | **Show desktop** |
+| **F7** | - | `Shift+Alt+F` | **Format Document** |
+| **F8** | - | `Ctrl+J` | **Toggle Terminal/Panel** |
+| **F9** | - | `Ctrl+Shift+P` | **Command Palette** |
+| **F10** | - | `Ctrl+P` | **Quick Open File** |
+| **F11** | - | `Ctrl+/` | **Toggle Line Comment** |
+| **F12** | - | `Ctrl+K S` | **Save All Files** |
 
 ### 🕹️ Navigation Keys (Linux Optimized)
 | 🔢 Key | Standard Mode | Linux Mode | 📝 Description |
@@ -211,6 +224,12 @@ The macros in this project are **hardcoded into the Arduino**, meaning **any key
 
 ## 🎯 Macro Summary
 
+### 🖥️ Ubuntu/GNOME Desktop Features  
+✅ **Workspace Management** – F1-F2 switch between workspaces  
+✅ **Window Navigation** – F3-F4 move between workspaces  
+✅ **Window Control** – F5 maximize, F6 show desktop  
+✅ **Super Key Integration** – Full GNOME shortcut support  
+
 ### 🚀 Performance Features
 ✅ **Non-blocking Timing** – All macros use `millis()` for responsive operation  
 ✅ **Linux Optimized** – Enhanced desktop and terminal shortcuts  
@@ -218,6 +237,8 @@ The macros in this project are **hardcoded into the Arduino**, meaning **any key
 ✅ **Memory Efficient** – Minimal RAM overhead with maximum functionality  
 
 ### 💡 Special Notes
+🔸 **Ubuntu/GNOME Control** – F1-F6 provide complete desktop and window management  
+🔸 **VSCode Integration** – F7-F12 add developer productivity shortcuts  
 🔸 **Space Bar** – Mapped to `F24` for special output functions  
 🔸 **Num Lock** – Controls both LED and numpad number/arrow functionality  
 🔸 **Two-stage Macros** – F12 uses Ctrl+K then S sequence  
