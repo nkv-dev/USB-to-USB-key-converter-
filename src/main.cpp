@@ -60,6 +60,7 @@ void startMacro(MacroType type) {
     
     Serial.print("Macro ");
     Serial.print(type);
+    Serial.println(" started");
     
     // Press the appropriate keys immediately
     switch (type) {
@@ -168,6 +169,7 @@ void processMacros() {
     // Check if it's time to release the keys
     if (elapsed >= MACRO_DELAY) {
         Keyboard.releaseAll();
+        Serial.println("Macro completed");
         currentMacro.inProgress = false;
         currentMacro.macroType = NO_MACRO;
         currentMacro.keysPressed = false;
@@ -187,19 +189,27 @@ protected:
             for (uint8_t i = 2; i < len; i++) {
                 if (buf[i] > 0) {
                     uint8_t keycode = buf[i];
+                    Serial.print("Key: 0x");
+                    Serial.print(keycode, HEX);
 
                     if (keycode == 0x53) { // Num Lock key
                         numLockActive = !numLockActive; // Toggle Num Lock state
                         digitalWrite(LED_PIN, numLockActive ? HIGH : LOW); // Control LED
+                        Serial.println(" -> Num Lock");
                         continue; // Skip processing as macro
                     }
                     
                     char c = KeycodeToAscii(keycode, shiftPressed);
                     
                     if (c) {
+                        Serial.print(" -> Char: '");
+                        Serial.print(c);
+                        Serial.println("'");
                         Keyboard.press(c);   // Press key
                         delayMicroseconds(10000); // 10ms equivalent for single keys
                         Keyboard.release(c); // Release key
+                    } else {
+                        Serial.println(" -> Macro/Other");
                     }
                 }
             }
@@ -366,10 +376,11 @@ void setup() {
     Keyboard.begin();
     pinMode(LED_PIN, OUTPUT); // Set LED pin as output
 
-    Serial.println("Arduino Macro Keyboard Converter Ready");
+    Serial.println("=== Arduino Macro Keyboard ===");
+    Serial.println("Initializing...");
     
     if (Usb.Init() == -1) {
-        Serial.println("USB Host Shield init failed!");
+        Serial.println("ERROR: USB Host Shield failed!");
         while (1) {
             digitalWrite(LED_PIN, HIGH);
             delay(100);
@@ -379,11 +390,22 @@ void setup() {
     }
     
     Hid.SetReportParser(0, &MyKeyboard);
+    Serial.println("SUCCESS: USB Host Shield ready");
+    Serial.println("Waiting for keyboard input...");
+    Serial.println("==============================");
 }
 
 void loop() {
     Usb.Task(); // Keep checking for updates
     processMacros(); // Process any ongoing macro executions
     
-
+    // Simple heartbeat every 10 seconds
+    static unsigned long lastHeartbeat = 0;
+    if (millis() - lastHeartbeat >= 10000) {
+        lastHeartbeat = millis();
+        Serial.print("Heartbeat - NumLock: ");
+        Serial.print(numLockActive ? "ON" : "OFF");
+        Serial.print(" Macro: ");
+        Serial.println(currentMacro.inProgress ? "YES" : "NO");
+    }
     }
