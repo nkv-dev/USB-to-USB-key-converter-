@@ -35,13 +35,8 @@ enum MacroType {
     GNOME_WS2_MACRO = 20,            // Super+End (Workspace 2)
     GNOME_WS_LEFT_MACRO = 21,         // Super+Ctrl+Left (Previous workspace)
     GNOME_WS_RIGHT_MACRO = 22,        // Super+Ctrl+Right (Next workspace)
-    GNOME_MOVE_WS1_MACRO = 23,       // Super+Shift+Home (Move window to WS1)
-    GNOME_MOVE_WS2_MACRO = 24,       // Super+Shift+End (Move window to WS2)
-    GNOME_MAXIMIZE_MACRO = 25,        // Super+Up (Maximize window)
-    GNOME_TILE_LEFT_MACRO = 26,        // Super+Left (Tile left half)
-    GNOME_TILE_RIGHT_MACRO = 27,       // Super+Right (Tile right half)
-    GNOME_MINIMIZE_MACRO = 28,         // Super+Down (Minimize window)
-    GNOME_SHOW_DESKTOP_MACRO = 29      // Super+D (Show desktop)
+    GNOME_MAXIMIZE_MACRO = 23,         // Super+Up (Maximize window)
+    GNOME_SHOW_DESKTOP_MACRO = 24      // Super+D (Show desktop)
 };
 
 // Macro state management structure
@@ -172,31 +167,9 @@ void startMacro(MacroType type) {
             Keyboard.press(KEY_LEFT_CTRL);
             Keyboard.press(KEY_RIGHT_ARROW);
             break;
-        case GNOME_MOVE_WS1_MACRO:
-            Keyboard.press(KEY_LEFT_GUI);     // Super key
-            Keyboard.press(KEY_LEFT_SHIFT);
-            Keyboard.press(KEY_HOME);
-            break;
-        case GNOME_MOVE_WS2_MACRO:
-            Keyboard.press(KEY_LEFT_GUI);     // Super key
-            Keyboard.press(KEY_LEFT_SHIFT);
-            Keyboard.press(KEY_END);
-            break;
         case GNOME_MAXIMIZE_MACRO:
             Keyboard.press(KEY_LEFT_GUI);     // Super key
             Keyboard.press(KEY_UP_ARROW);
-            break;
-        case GNOME_TILE_LEFT_MACRO:
-            Keyboard.press(KEY_LEFT_GUI);     // Super key
-            Keyboard.press(KEY_LEFT_ARROW);
-            break;
-        case GNOME_TILE_RIGHT_MACRO:
-            Keyboard.press(KEY_LEFT_GUI);     // Super key
-            Keyboard.press(KEY_RIGHT_ARROW);
-            break;
-        case GNOME_MINIMIZE_MACRO:
-            Keyboard.press(KEY_LEFT_GUI);     // Super key
-            Keyboard.press(KEY_DOWN_ARROW);
             break;
         case GNOME_SHOW_DESKTOP_MACRO:
             Keyboard.press(KEY_LEFT_GUI);     // Super key
@@ -373,69 +346,27 @@ protected:
             case 0x58: return numLockActive ? '\n' : 0;
             case 0x63: return numLockActive ? '.' : 0;
             
-            // Numpad keys with Shift for window management (when Num Lock OFF)
-            case 0x5F: // Numpad 7 with Shift = Home key -> Maximize window
-                if (!numLockActive) {
-                    startMacro(GNOME_MAXIMIZE_MACRO);
-                    return 0;
-                }
-                return '7';
-            case 0x60: // Numpad 8 with Shift = Up arrow -> Move window to workspace up  
-                if (!numLockActive) {
-                    startMacro(GNOME_MOVE_WS1_MACRO);
-                    return 0;
-                }
-                return '8';
-            case 0x61: // Numpad 9 with Shift = Page Up -> Next workspace
-                if (!numLockActive) {
-                    startMacro(GNOME_WS_RIGHT_MACRO);
-                    return 0;
-                }
-                return '9';
-            case 0x5D: // Numpad 1 with Shift = End key -> Minimize window
-                if (!numLockActive) {
-                    startMacro(GNOME_MINIMIZE_MACRO);
-                    return 0;
-                }
-                return '1';
-            case 0x5E: // Numpad 2 with Shift = Down arrow -> Move window to workspace down
-                if (!numLockActive) {
-                    startMacro(GNOME_MOVE_WS2_MACRO);
-                    return 0;
-                }
-                return '2';
-            case 0x5F: // Numpad 3 with Shift = Page Down -> Previous workspace
-                if (!numLockActive) {
-                    startMacro(GNOME_WS_LEFT_MACRO);
-                    return 0;
-                }
-                return '3';
-            case 0x5A: // Numpad 4 with Shift = Left arrow -> Tile window left
-                if (!numLockActive) {
-                    startMacro(GNOME_TILE_LEFT_MACRO);
-                    return 0;
-                }
-                return '4';
-            case 0x5C: // Numpad 6 with Shift = Right arrow -> Tile window right
-                if (!numLockActive) {
-                    startMacro(GNOME_TILE_RIGHT_MACRO);
-                    return 0;
-                }
-                return '6';
-            case 0x59: // Numpad 0 with Shift = Insert -> Show desktop
-                if (!numLockActive) {
-                    startMacro(GNOME_SHOW_DESKTOP_MACRO);
-                    return 0;
-                }
-                return '0';
+
                 
-            // Function keys (F1-F12) - VSCode macros mapped to F7-F12
-            case 0x3A: return KEY_F1;
-            case 0x3B: return KEY_F2;
-            case 0x3C: return KEY_F3;
-            case 0x3D: return KEY_F4;
-            case 0x3E: return KEY_F5;
-            case 0x3F: return KEY_F6;
+            // Function keys (F1-F6) - GNOME window management
+            case 0x3A:   // F1 - Switch to workspace 1
+            startMacro(GNOME_WS1_MACRO);
+            return 0;
+            case 0x3B:   // F2 - Switch to workspace 2
+            startMacro(GNOME_WS2_MACRO);
+            return 0;
+            case 0x3C:   // F3 - Previous workspace
+            startMacro(GNOME_WS_LEFT_MACRO);
+            return 0;
+            case 0x3D:   // F4 - Next workspace
+            startMacro(GNOME_WS_RIGHT_MACRO);
+            return 0;
+            case 0x3E:   // F5 - Maximize window
+            startMacro(GNOME_MAXIMIZE_MACRO);
+            return 0;
+            case 0x3F:   // F6 - Show desktop
+            startMacro(GNOME_SHOW_DESKTOP_MACRO);
+            return 0;
             case 0x40:   // F7 - VSCode Format Document (Shift+Alt+F)
             startMacro(VSCODE_FORMAT_MACRO);
             return 0;
@@ -455,19 +386,7 @@ protected:
             startMacro(VSCODE_SAVE_ALL_MACRO);
             return 0;
 
-            // Additional function keys for GNOME window management
-            case 0x46:   // F13 - Switch to workspace 1
-            startMacro(GNOME_WS1_MACRO);
-            return 0;
-            case 0x47:   // F14 - Switch to workspace 2  
-            startMacro(GNOME_WS2_MACRO);
-            return 0;
-            case 0x48:   // F15 - Previous workspace
-            startMacro(GNOME_WS_LEFT_MACRO);
-            return 0;
-            case 0x49:   // F16 - Next workspace
-            startMacro(GNOME_WS_RIGHT_MACRO);
-            return 0;
+
 
             // Page up, Page down, Home, End, Insert, Delete
             case 0x4B: return KEY_PAGE_UP;// Page up
@@ -526,11 +445,9 @@ void setup() {
     Serial.println("Waiting for keyboard input...");
     Serial.println("==============================");
     Serial.println("Ubuntu/GNOME Window Management:");
-    Serial.println("F13: WS1  F14: WS2  F15: Prev WS  F16: Next WS");
-    Serial.println("NumLock OFF + Numpad:");
-    Serial.println("7:Max 8:Up WS 9:Next WS");
-    Serial.println("1:Min 2:Down WS 3:Prev WS"); 
-    Serial.println("4:Tile L 6:Tile R 0:Show Desktop");
+    Serial.println("F1: WS1  F2: WS2  F3: Prev WS  F4: Next WS");
+    Serial.println("F5: Max  F6: Desktop");
+    Serial.println("F7-F12: VSCode macros (Format, Panel, Cmd, Open, Comment, Save)");
     Serial.println("==============================");
 }
 
